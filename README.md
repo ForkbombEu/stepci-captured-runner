@@ -53,7 +53,8 @@ To start using `stepci-captured-runner`, follow these steps:
    After installing the dependencies, you can build the project to generate the executable:
 
    ```bash
-   bun build
+   bun i
+   bun run build
    ```
 
    This will compile the source code and create the executable file in the `dist` directory.
@@ -73,7 +74,7 @@ To start using `stepci-captured-runner`, follow these steps:
    If you prefer not to build the executable, you can also run the project directly using Bun:
 
    ```bash
-   bun run script.js --path yourfile.yaml
+   bun run runner.js --path yourfile.yaml
    ```
 
    This will execute the `script.js` file without building the binary first.

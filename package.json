@@ -1,0 +1,22 @@
+
+{
+  "name": "stepci-runner",
+  "version": "1.0.0",
+  "description": "A CLI tool to run StepCI workflows from YAML files.",
+  "type": "module",
+  "scripts": {
+    "start": "bun run script.js",
+    "build": "bun build script.js --outfile=dist/stepci-runner --minify --target=bun",
+    "run": "dist/stepci-runner",
+    "install": "bun install"
+  },
+  "bin": {
+    "stepci-runner": "./dist/stepci-runner"
+  },
+  "dependencies": {
+    "@stepci/runner": "^2.0.7",
+    "commander": "^13.1.0"
+  },
+
+  "keywords": ["stepci", "workflow", "runner", "CLI"]
+}

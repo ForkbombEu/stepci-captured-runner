@@ -1,6 +1,6 @@
 <div align="center">
 
-# {project_name}
+# stepci-captured-runner
 
 ### {tagline}
 
@@ -12,20 +12,11 @@
   </a>
 </p>
 
-
 ---
+
 <br><br>
 
-
-## {project_name} Features
-
-{screenshot}
-
-# [LIVE DEMO](https://https://interfacer-gui-staging.dyne.org/)
-
-<br>
-
-<div id="toc">
+## stepci-captured-runner Features
 
 ### 🚩 Table of Contents
 
@@ -43,25 +34,66 @@
 
 </div>
 
-***
-## 💾 Install
-```pip install / yard add {project_name}```
+---
 
+## 💾 Install
+
+`bun i`
 
 **[🔝 back to top](#toc)**
 
-***
+---
+
 ## 🎮 Quick start
 
-To start using {project_name} run the following command in the root folder
+To start using `stepci-captured-runner`, follow these steps:
+
+1. **Build the executable**:
+
+   After installing the dependencies, you can build the project to generate the executable:
+
+   ```bash
+   bun build
+   ```
+
+   This will compile the source code and create the executable file in the `dist` directory.
+
+2. **Run the executable**:
+
+   After building, you can run the generated executable:
+
+   ```bash
+   ./dist/stepci-runner --path yourfile.yaml
+   ```
+
+   You can replace `yourfile.yaml` with the path to your StepCI YAML file.
+
+3. **Optional: Run directly with Bun**:
+
+   If you prefer not to build the executable, you can also run the project directly using Bun:
+
+   ```bash
+   bun run script.js --path yourfile.yaml
+   ```
+
+   This will execute the `script.js` file without building the binary first.
+
+## 🚀 Commands & Usage
+
+- `--path <file>`: Specify the path to the test file.
+- `--secret <key=value...>`: Provide secrets as key-value pairs.
+- `--env <key=value...>`: Provide environment variables as key-value pairs.
+
+For more information on using the available options, run:
 
 ```bash
-docker compose up
+stepci-runner --help
 ```
 
 **[🔝 back to top](#toc)**
 
-***
+---
+
 ## 🚑 Community & support
 
 **[📝 Documentation](#toc)** - Getting started and more.
@@ -82,61 +114,11 @@ docker compose up
 
 **[🔝 back to top](#toc)**
 
-***
-## 🐋 Docker
-
-Please refer to [DOCKER PACKAGES](../../packages)
-
-
-**[🔝 back to top](#toc)**
-
-***
-## 🐝 API
-
-Available endpoints
-
-### POST /token
-
-Execute a transaction with some amount
-
-**Parameters**
-
-|          Name | Required |  Type   | Description       | 
-| -------------:|:--------:|:-------:| ------------------|
-|       `token` | required | string  | Type of token. Accepted values `idea` or `strength`  |
-|       `amount`| required | number  | Transaction's token amount |
-|       `owner` | required | ULID    | The ULID of the Agent's owner |
- 
-### GET /token/${request.token}/${request.owner}
-
-Retrieves the actual value of the token type for the specified owner
-
-
-**[🔝 back to top](#toc)**
-
-***
-## 🔧 Configuration
-
-**[🔝 back to top](#toc)**
-
-***
-
-## 📋 Testing
-
-**[🔝 back to top](#toc)**
-
-***
-## 🐛 Troubleshooting & debugging
-
-**[🔝 back to top](#toc)**
-
-***
 ## 😍 Acknowledgements
 
 <a href="https://dyne.org">
   <img src="https://files.dyne.org/software_by_dyne.png" width="222">
 </a>
-
 
 Copyleft 🄯 2023 by [Dyne.org](https://www.dyne.org) foundation, Amsterdam
 
@@ -146,7 +128,8 @@ Special thanks to Mr. W. White for his special contributions.
 
 **[🔝 back to top](#toc)**
 
-***
+---
+
 ## 👤 Contributing
 
 Please first take a look at the [Dyne.org - Contributor License Agreement](CONTRIBUTING.md) then
@@ -158,11 +141,12 @@ Please first take a look at the [Dyne.org - Contributor License Agreement](CONTR
 5.  Create a new Pull Request `gh pr create -f`
 6.  🙏 Thank you
 
-
 **[🔝 back to top](#toc)**
 
-***
+---
+
 ## 💼 License
+
     {project_name} - {tagline}
     Copyleft 🄯 2023 Dyne.org foundation, Amsterdam
 

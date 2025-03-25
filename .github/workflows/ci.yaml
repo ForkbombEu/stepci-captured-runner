@@ -1,0 +1,32 @@
+name: 📣
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.head_ref ||  github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+      - name: ⚙️ Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ".tool-versions"
+      - name: 📩 Install dependencies
+        run: bun i
+        shell: bash
+      - name: 🚀 Release
+        run: bun x semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

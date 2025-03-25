@@ -1,0 +1,65 @@
+{
+    "repositoryUrl": "git@github.com:forkbombeu/stepci-captured-runner.git",
+    "dryRun": false,
+    "plugins": [
+        "@semantic-release/release-notes-generator",
+        "@semantic-release/changelog",
+        "@semantic-release/commit-analyzer",
+        [
+            "@semantic-release/npm",
+            {
+                "npmPublish": false
+            }
+        ],
+        [
+            "@semantic-release/git",
+            {
+                "assets": [
+                    "CHANGELOG.md",
+                    "package.json"
+                ],
+                "message": "chore(release): 🚀 ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+            }
+        ],
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "make all"
+            }
+        ],
+        [
+            "@semantic-release/github",
+            {
+                "assets": [
+                    {
+                        "path": "stepci-captured-runner-darwin-x64",
+                        "name": "stepci-captured-runner-Darwin-x86_64"
+                    },
+                    {
+                        "path": "stepci-captured-runner-darwin-arm64",
+                        "name": "stepci-captured-runner-Darwin-arm64"
+                    },
+                    {
+                        "path": "stepci-captured-runner-linux-x64",
+                        "name": "stepci-captured-runner-Linux-x86_64"
+                    },
+                    {
+                        "path": "stepci-captured-runner-linux-arm64",
+                        "name": "stepci-captured-runner-Linux-arm64"
+                    },
+                    {
+                        "path": "stepci-captured-runner-linux-aarch64",
+                        "name": "stepci-captured-runner-Linux-aarch64"
+                    },
+                    {
+                        "path": "stepci-captured-runner-windows-x64.exe",
+                        "name": "stepci-captured-runner-Windows-x86_64.exe"
+                    }
+                ]
+            }
+        ]
+    ],
+    "branches": [
+        "main"
+    ]
+}

@@ -2,7 +2,7 @@ name: 📣
 on:
   push:
     branches:
-      - main
+      - master
 
 concurrency:
   group: ${{ github.head_ref ||  github.ref }}

@@ -48,42 +48,45 @@
 
 To start using `stepci-captured-runner`, follow these steps:
 
-1. **Build the executable**:
+```bash
+git clone
+cd stepci-captured-runner
+bun i
+```
+This will clone the repository and install the necessary dependencies.
 
-   After installing the dependencies, you can build the project to generate the executable:
+then, you can run the following command to start the runner:
+
+```bash
+bun start --path yourfile.yaml
+```
+
+1. **Bundle the code**:
+
+   After installing the dependencies, you can bundle the code to create a standalone js executable. This step is optional but recommended for better performance and portability.
 
    ```bash
    bun i
    bun run build
    ```
 
-   This will compile the source code and create the executable file in the `dist` directory.
-
-2. **Run the executable**:
+2. **Run the bundle**:
 
    After building, you can run the generated executable:
 
    ```bash
-   ./dist/stepci-runner --path yourfile.yaml
+   bun run ./dist/stepci-runner --path yourfile.yaml
    ```
 
    You can replace `yourfile.yaml` with the path to your StepCI YAML file.
 
-3. **Optional: Run directly with Bun**:
-
-   If you prefer not to build the executable, you can also run the project directly using Bun:
-
-   ```bash
-   bun run runner.js --path yourfile.yaml
-   ```
-
-   This will execute the `script.js` file without building the binary first.
 
 ## 🚀 Commands & Usage
 
 - `--path <file>`: Specify the path to the test file.
 - `--secret <key=value...>`: Provide secrets as key-value pairs.
 - `--env <key=value...>`: Provide environment variables as key-value pairs.
+- `-h, --human-readable`: Display the output in a human-readable format.
 
 For more information on using the available options, run:
 

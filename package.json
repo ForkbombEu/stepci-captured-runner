@@ -4,8 +4,8 @@
   "description": "A CLI tool to run StepCI workflows from YAML files.",
   "type": "module",
   "scripts": {
-    "start": "bun run runner.js",
-    "build": "bun build runner.js --outfile=dist/stepci-runner --minify --target=bun && chmod +x dist/stepci-runner",
+    "start": "bun run runner.ts",
+    "build": "bun build runner.ts --outfile=dist/stepci-runner --minify --target=bun && chmod +x dist/stepci-runner",
     "run": "dist/stepci-runner"
   },
   "bin": {

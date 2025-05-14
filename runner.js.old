@@ -13,14 +13,12 @@ program.parse(process.argv);
 const options = program.opts();
 const rawYamlArg = program.args[0];
 
-// Parse secrets
 const secrets = {};
 (options.secret || []).forEach((pair) => {
   const match = pair.match(/^([^=]+)=(.*)$/);
   if (match) secrets[match[1].trim()] = match[2].trim().replace(/^"|"$/g, '');
 });
 
-// Parse env
 const env = {};
 (options.env || []).forEach((pair) => {
   const match = pair.match(/^([^=]+)=(.*)$/);
@@ -38,7 +36,6 @@ async function run() {
     } else if (rawYamlArg) {
       result = await runFromYAML(rawYamlArg, workflowOptions);
     } else {
-      // Read from stdin
       const yaml = await new Promise((resolve, reject) => {
         let data = '';
         process.stdin.setEncoding('utf8');
@@ -51,20 +48,21 @@ async function run() {
     }
     const { passed, tests } = result.result;
 
-    if (passed) {
-      const lastTest = tests[tests.length - 1];
-      const lastStep = lastTest.steps[lastTest.steps.length - 1];
-      if (lastStep?.captures) {
-        console.log(JSON.stringify(lastStep.captures, null, 2));
-      } else {
-        console.log("No captures found in the last step.");
-      }
-    } else {
+    if(!passed) {
       handleFailures(tests);
       process.exit(1);
     }
+
+    const lastTest = tests[tests.length - 1];
+    const lastStep = lastTest.steps[lastTest.steps.length - 1];
+
+    
+    if (!lastStep?.captures) {
+      console.error("❌ No captures found in the last step.");
+    } else {
+    console.log(JSON.stringify(lastStep.captures, null, 2));
+    }
   } catch (err) {
-    console.error("Runner output:", JSON.stringify(result, null, 2));
     console.error("🚨 Error running workflow:", err.message || err);
     process.exit(1);
   }

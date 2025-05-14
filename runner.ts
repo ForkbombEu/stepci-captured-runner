@@ -1,4 +1,3 @@
-// cli.ts
 import { Command } from 'commander';
 import { runFromFile, runFromYAML, type TestResult, StepResult, WorkflowResult, WorkflowOptions } from '@stepci/runner';
 
@@ -6,7 +5,20 @@ interface CliOptions {
     path?: string;
     secret?: string[];
     env?: string[];
-  }
+    humanReadable?: boolean;
+}
+
+interface CliReturns {
+    passed: boolean;
+    messages: string[];
+    captures: Record<string, any>;
+    tests: TestResult[];
+    errors: cliError[]
+}
+interface cliError {
+    message: string;
+    stack?: string;
+}
 
 const program = new Command();
 
@@ -14,6 +26,7 @@ program
   .option('-p, --path <file>', 'Path to the test file')
   .option('-s, --secret <key=value...>', 'Secrets as key=value pairs')
   .option('-e, --env <key=value...>', 'Environment variables as key=value pairs')
+  .option('-h, --human-readable', 'Output in human-readable format')
   .argument('[yaml]', 'Raw YAML string as fallback input');
 
 program.parse(process.argv);
@@ -36,9 +49,17 @@ const env: Record<string, string> = {};
   }
 });
 
+const humanReadable = options.humanReadable || false;
+
 const workflowOptions: WorkflowOptions = { secrets, env };
 
 async function run(): Promise<void> {
+  const messages: string[] = [];
+  const errors: cliError[] = [];
+  let captures: Record<string, any> = {};
+  let tests: TestResult[] = [];
+  let passed = false;
+
   try {
     let runnerResponse: WorkflowResult;
 
@@ -55,121 +76,206 @@ async function run(): Promise<void> {
         process.stdin.on('error', reject);
       });
       if (!yamlInput.trim()) {
-        console.error("🚨 No input provided via file, argument, or stdin. Use --help for options.");
-        process.exit(1);
+        errors.push({ message: "No input provided via file, argument, or stdin. Use --help for options." });
+        outputResult(false, messages, captures, tests, errors);
+        return;
       }
       runnerResponse = (await runFromYAML(yamlInput, workflowOptions));
     }
 
-    const { passed, tests } = runnerResponse.result;
+    ({ passed, tests } = runnerResponse.result);
 
     if (!passed) {
-      handleFailures(tests);
-      process.exit(1);
+      handleFailures(tests, messages, errors);
+      outputResult(false, messages, captures, tests, errors);
+      return;
     }
 
     if (tests.length === 0) {
-      console.log("✅ Workflow passed, but no tests were executed.");
-      process.exit(0);
+      messages.push("Workflow passed, but no tests were executed.");
+      outputResult(true, messages, captures, tests, errors);
+      return;
     }
 
     const lastTest = tests[tests.length - 1];
     if (!lastTest || lastTest.steps.length === 0) {
-        console.error("❌ No steps found in the last test.");
-        process.exit(1); 
+        errors.push({ message: "No steps found in the last test." });
+        outputResult(false, messages, captures, tests, errors);
+        return;
     }
     
     const lastStep = lastTest.steps[lastTest.steps.length - 1];
 
     if (!lastStep?.captures || Object.keys(lastStep.captures).length === 0) {
-      console.log("✅ Workflow passed. No captures found in the last step of the last test.");
+      messages.push("Workflow passed. No captures found in the last step of the last test.");
     } else {
-      console.log("✅ Workflow passed. Captures from the last step:");
-      console.log(JSON.stringify(lastStep.captures, null, 2));
+      messages.push("Workflow passed. Captures from the last step:");
+      captures = lastStep.captures;
     }
-    process.exit(0);
+    outputResult(true, messages, captures, tests, errors);
 
   } catch (err: any) {
-    console.error("🚨 Error running workflow:", err.message || err);
-    process.exit(1);
+    errors.push({ message: err?.message || String(err), stack: err?.stack });
+    outputResult(false, messages, captures, tests, errors);
   }
 }
 
-function handleFailures(tests: TestResult[]): void {
-  console.error("❌ Workflow failed. Details:\n");
-for (const test of tests) {
-    for (const step of test.steps) {
-        if (step.passed) continue;
-
-        logStepFailure(step);
-        logStepChecks(step);
-        logStepResponse(step);
-        console.error("\n");
-    }
-}
-
-function logStepFailure(step: StepResult) {
-    console.error(`🔴 Step Failed: ${step.name || 'Unnamed Step'}`);
-    if (step.request) {
-        console.error(`  🌍 URL: ${step.request.url}`);
-        console.error(`  📡 Method: ${step.request.method}`);
-    }
-}
-
-function logStepChecks(step: StepResult) {
-    if (!step.checks) return;
-
-    let hasErrors = false;
-    let errorMessages = "  ❌ Failed Checks:\n";
-
-    for (const key in step.checks) {
-        const checkGroupOrDetail = step.checks[key];
-        if (isCheckDetail(checkGroupOrDetail)) {
-            if (!checkPassed(checkGroupOrDetail)) {
-                hasErrors = true;
-                errorMessages += formatCheckError(key, checkGroupOrDetail);
+function outputResult(
+    passed: boolean,
+    messages: string[],
+    captures: Record<string, any>,
+    tests: TestResult[],
+    errors: cliError[]
+) {
+    const result: CliReturns = { passed, messages, captures, tests, errors };
+    if (humanReadable) {
+        if (result.passed) {
+            console.log("✅ Workflow PASSED!");
+        } else {
+            console.log("❌ Workflow FAILED!");
+        }
+        if (tests.length > 0) {
+            let passedCount = 0;
+            let failedCount = 0;
+            for (const test of tests) {
+                if (test.passed) passedCount++;
+                else failedCount++;
             }
-        } else if (typeof checkGroupOrDetail === 'object' && checkGroupOrDetail !== null) {
-            for (const subKey in checkGroupOrDetail) {
-                const subCheck = checkGroupOrDetail[subKey];
-                if (!checkPassed(subCheck)) {
-                    hasErrors = true;
-                    errorMessages += formatCheckError(`${key}.${subKey}`, subCheck);
+            console.log(
+                `\n🧪 Tests: ${tests.length} | ✅ Passed: ${passedCount} | ❌ Failed: ${failedCount}`
+            );
+        } else {
+            console.log("\n🧪 No tests were executed.");
+        }
+
+        let totalSteps = 0;
+        let passedSteps = 0;
+        let failedSteps = 0;
+        for (const test of tests) {
+            for (const step of test.steps) {
+                totalSteps++;
+                if (step.passed) passedSteps++;
+                else failedSteps++;
+            }
+        }
+        if (totalSteps > 0) {
+            console.log(
+                `🚶 Steps: ${totalSteps} | ✅ Passed: ${passedSteps} | ❌ Failed: ${failedSteps}`
+            );
+        }
+
+        if (captures && Object.keys(captures).length > 0) {
+            console.log("\n📦 Captures:");
+            for (const [key, value] of Object.entries(captures)) {
+                console.log(`  - ${key}: ${JSON.stringify(value)}`);
+            }
+        }
+
+        if (errors.length > 0) {
+            console.log("\n🚨 Errors:");
+            for (const err of errors) {
+                console.log(`  - ${err.message}`);
+                if (err.stack) {
+                    console.log(`    Stack: ${err.stack.split('\n')[0]}`);
                 }
             }
         }
-    }
 
-    if (hasErrors) console.error(errorMessages);
+        if (messages.length > 0) {
+            console.log("\n📝 Details:");
+            for (const message of messages) {
+                console.log(message);
+            }
+        }
+
+        console.log(
+            result.passed
+                ? "\n🎉 All done! Your workflow succeeded."
+                : "\n⚠️  Workflow finished with failures. See above for details."
+        );
+        return;
+    }
+    console.log(JSON.stringify(result, null, 2));
+}
+
+function handleFailures(
+  tests: TestResult[],
+  messages: string[],
+  errors: cliError[]
+): void {
+  messages.push("Workflow failed. Details:");
+  for (const test of tests) {
+    for (const step of test.steps) {
+      if (step.passed) continue;
+      logStepFailure(step, messages, errors);
+      logStepChecks(step, messages, errors);
+      logStepResponse(step, messages, errors);
+      messages.push(""); // blank line
+    }
+  }
+}
+
+function logStepFailure(step: StepResult, messages: string[], errors: cliError[]) {
+  messages.push(`Step Failed: ${step.name || 'Unnamed Step'}`);
+  if (step.request) {
+    messages.push(`  URL: ${step.request.url}`);
+    messages.push(`  Method: ${step.request.method}`);
+  }
+}
+
+function logStepChecks(step: StepResult, messages: string[], errors: cliError[]) {
+  if (!step.checks) return;
+
+  let hasErrors = false;
+  let errorMessages = "  Failed Checks:\n";
+
+  for (const key in step.checks) {
+    const checkGroupOrDetail = step.checks[key];
+    if (isCheckDetail(checkGroupOrDetail)) {
+      if (!checkPassed(checkGroupOrDetail)) {
+        hasErrors = true;
+        errorMessages += formatCheckError(key, checkGroupOrDetail);
+      }
+    } else if (typeof checkGroupOrDetail === 'object' && checkGroupOrDetail !== null) {
+      for (const subKey in checkGroupOrDetail) {
+        const subCheck = checkGroupOrDetail[subKey];
+        if (!checkPassed(subCheck)) {
+          hasErrors = true;
+          errorMessages += formatCheckError(`${key}.${subKey}`, subCheck);
+        }
+      }
+    }
+  }
+
+  if (hasErrors) messages.push(errorMessages);
 }
 
 function isCheckDetail(obj: any): obj is { expected: any; given: any } {
-    return obj && typeof obj === 'object' && 'expected' in obj && 'given' in obj;
+  return obj && typeof obj === 'object' && 'expected' in obj && 'given' in obj;
 }
 
 function checkPassed(check: { expected: any; given: any }): boolean {
-    return JSON.stringify(check.expected) === JSON.stringify(check.given);
+  return JSON.stringify(check.expected) === JSON.stringify(check.given);
 }
 
 function formatCheckError(key: string, check: { expected: any; given: any }): string {
-    return `    - ${key}:\n        Expected: ${JSON.stringify(check.expected, null, 2)}\n        Got:      ${JSON.stringify(check.given, null, 2)}\n`;
+  return `    - ${key}:\n        Expected: ${JSON.stringify(check.expected, null, 2)}\n        Got:      ${JSON.stringify(check.given, null, 2)}\n`;
 }
 
-function logStepResponse(step: StepResult) {
-    if (!step.response) return;
-    console.error("  📩 Response:");
-    console.error(`    - Status: ${step.response.status} ${step.response.statusText}`);
-    console.error(`    - Headers: ${JSON.stringify(step.response.headers, null, 2)}`);
-    if (step.response.body) {
-        const responseBody = Buffer.from(step.response.body).toString('utf-8');
-        try {
-            const responseJson = JSON.parse(responseBody);
-            console.error(`    - Body (JSON):\n${JSON.stringify(responseJson, null, 2)}`);
-        } catch {
-            console.error(`    - Body (Raw Text):\n${responseBody}`);
-        }
+function logStepResponse(step: StepResult, messages: string[], errors: cliError[]) {
+  if (!step.response) return;
+  messages.push("  Response:");
+  messages.push(`    - Status: ${step.response.status} ${step.response.statusText}`);
+  messages.push(`    - Headers: ${JSON.stringify(step.response.headers, null, 2)}`);
+  if (step.response.body) {
+    const responseBody = Buffer.from(step.response.body).toString('utf-8');
+    try {
+      const responseJson = JSON.parse(responseBody);
+      messages.push(`    - Body (JSON):\n${JSON.stringify(responseJson, null, 2)}`);
+    } catch {
+      messages.push(`    - Body (Raw Text):\n${responseBody}`);
     }
-}
+  }
 }
 
 run();

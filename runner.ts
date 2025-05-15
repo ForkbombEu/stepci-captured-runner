@@ -1,10 +1,12 @@
 import { Command } from 'commander';
 import { runFromFile, runFromYAML, type TestResult, StepResult, WorkflowResult, WorkflowOptions } from '@stepci/runner';
+import fs from 'fs';
+
 
 interface CliOptions {
     path?: string;
-    secret?: string[];
-    env?: string[];
+    secret?: string | undefined;
+    env?: string | undefined;
     humanReadable?: boolean;
 }
 
@@ -24,8 +26,8 @@ const program = new Command();
 
 program
   .option('-p, --path <file>', 'Path to the test file')
-  .option('-s, --secret <key=value...>', 'Secrets as key=value pairs')
-  .option('-e, --env <key=value...>', 'Environment variables as key=value pairs')
+  .option('-s, --secret <json>', 'Secrets as a JSON string or path to JSON file')
+  .option('-e, --env <json>', 'Environment variables as a JSON string or path to JSON file')
   .option('-h, --human-readable', 'Output in human-readable format')
   .argument('[yaml]', 'Raw YAML string as fallback input');
 
@@ -33,21 +35,24 @@ program.parse(process.argv);
 const options = program.opts<CliOptions>(); 
 const rawYamlArg: string | undefined = program.args[0];
 
-const secrets: Record<string, string> = {};
-(options.secret || []).forEach((pair: string) => {
-  const match = pair.match(/^([^=]+)=(.*)$/);
-  if (match && match[1] && match[2]) {
-    secrets[match[1].trim()] = match[2].trim().replace(/^"|"$/g, '');
+function parseJsonInput(input:string | undefined): Record<string, any> {
+  if (!input) return {};
+  try {
+    return JSON.parse(input);
+  } catch {
+    try {
+      const content = fs.readFileSync(input, 'utf8');
+      return JSON.parse(content);
+    } catch (err) {
+      console.error(`Failed to parse JSON from input or file: ${input}`);
+      process.exit(1);
+    }
   }
-});
+}
 
-const env: Record<string, string> = {};
-(options.env || []).forEach((pair: string) => {
-  const match = pair.match(/^([^=]+)=(.*)$/);
-  if (match && match[1] && match[2]) {
-    env[match[1].trim()] = match[2].trim().replace(/^"|"$/g, '');
-  }
-});
+const secrets = parseJsonInput(options.secret);
+const env = parseJsonInput(options.env);
+
 
 const humanReadable = options.humanReadable || false;
 

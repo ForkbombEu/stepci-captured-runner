@@ -1,7 +1,7 @@
 .PHONY: help
 
 PLATFORMS = linux-x64 linux-arm64 linux-aarch64 windows-x64 darwin-x64 darwin-arm64
-SOURCES = runner.js
+SOURCES = runner.ts
 LIBS = node_modules
 
 DEPS = bun
@@ -15,10 +15,10 @@ help: ## 🛟  Show this help message
 all: $(addprefix stepci-captured-runner-, $(PLATFORMS)) ## 🛠️  Build all platforms
 
 stepci-captured-runner: $(SOURCES) $(LIBS) ## 🚀 Build stepi-captured-runner for the current platform
-	bun build runner.js --compile --minify --outfile stepci-captured-runner
+	bun build runner.ts --compile --minify --outfile stepci-captured-runner
 
 stepci-captured-runner-%: $(SOURCES) $(LIBS)
-	bun build runner.js --compile --minify --target=bun-$*-modern --outfile stepci-captured-runner-$*
+	bun build runner.ts --compile --minify --target=bun-$*-modern --outfile stepci-captured-runner-$*
 
 clean: ## 🧹 Clean the build
 	@rm -f $(addprefix stepci-captured-runner-, $(PLATFORMS))

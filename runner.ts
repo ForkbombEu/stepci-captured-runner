@@ -114,7 +114,7 @@ async function run(): Promise<void> {
     if (!lastStep?.captures || Object.keys(lastStep.captures).length === 0) {
       messages.push("Workflow passed. No captures found in the last step of the last test.");
     } else {
-      messages.push("Workflow passed. Captures from the last step:");
+      messages.push("Workflow passed");
       captures = lastStep.captures;
     }
     outputResult(true, messages, captures, tests, errors);

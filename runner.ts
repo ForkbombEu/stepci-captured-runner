@@ -1,6 +1,8 @@
 import { Command } from 'commander';
 import { runFromFile, runFromYAML, type TestResult, StepResult, WorkflowResult, WorkflowOptions } from '@stepci/runner';
 import fs from 'fs';
+import capturePlugin from './capture-plugin'
+
 
 
 interface CliOptions {
@@ -23,6 +25,16 @@ interface cliError {
 }
 
 const program = new Command();
+const internalPluginName = 'capture-plugin';
+if (require.cache) {
+    require.cache[internalPluginName] = {
+        id: internalPluginName,
+        exports: {
+            default: capturePlugin
+        },
+        loaded: true,
+    } as any;
+}
 
 program
   .option('-p, --path <file>', 'Path to the test file')

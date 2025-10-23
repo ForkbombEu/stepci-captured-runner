@@ -1,0 +1,19 @@
+version: "1.1"
+name: Cached Plugin Workflow
+
+tests:
+  capture-issuer:
+    steps:
+      - name: "Fetch credential offer JSON"
+        http:
+          method: GET
+          url: https://issuer.paradym.pensiondemo.findy.fi/pensioncredential.json
+          captures:
+            type:
+              body: true
+      - name: Transform capture
+        plugin:
+          id: 'capture-plugin'
+          params:
+            values:
+              deeplink:: "${{captures.type|slice:51|url_decode}}"

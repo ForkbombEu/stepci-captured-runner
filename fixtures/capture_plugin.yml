@@ -16,4 +16,4 @@ tests:
           id: 'capture-plugin'
           params:
             values:
-              deeplink:: "${{captures.type|slice:51|url_decode}}"
+              deeplink: "${{captures.type|slice:51|url_decode}}"

@@ -22,6 +22,7 @@
 
 - [💾 Install](#-install)
 - [🎮 Quick start](#-quick-start)
+- [🔌 Capture Plugin](#-capture-plugin)
 - [🚑 Community & support](#-community--support)
 - [🐋 Docker](#-docker)
 - [🐝 API](#-api)
@@ -92,6 +93,42 @@ For more information on using the available options, run:
 
 ```bash
 stepci-runner --help
+```
+
+**[🔝 back to top](#toc)**
+
+---
+
+## 🔌 Capture Plugin
+
+The `stepci-captured-runner` includes a built-in capture plugin that allows you to transform and store captured values during workflow execution.
+
+### Usage
+
+The capture plugin can be used in your StepCI YAML workflow files to manipulate captured data:
+
+```yaml
+version: "1.1"
+name: Example Workflow
+
+tests:
+  example-test:
+    steps:
+      - name: "Fetch data"
+        http:
+          method: GET
+          url: https://api.example.com/data
+          captures:
+            rawData:
+              jsonpath: $.data
+      
+      - name: "Transform captured data"
+        plugin:
+          id: 'capture-plugin'
+          params:
+            values:
+              processedData: "${{captures.rawData|slice:10}}"
+              customField: "some-value"
 ```
 
 **[🔝 back to top](#toc)**

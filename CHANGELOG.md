@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.2.0...v1.3.0) (2025-10-31)
+
+
+### Features
+
+* add capture plugin ([#3](https://github.com/forkbombeu/stepci-captured-runner/issues/3)) ([45c8055](https://github.com/forkbombeu/stepci-captured-runner/commit/45c80557f406ce6ead80fee82d5cfe3bb4bf9705))
+
 # [1.2.0](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.1.0...v1.2.0) (2025-05-21)
 
 

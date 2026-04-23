@@ -1,7 +1,8 @@
 import { Command } from 'commander';
 import { runFromFile, runFromYAML, type TestResult, StepResult, WorkflowResult, WorkflowOptions } from '@stepci/runner';
 import fs from 'fs';
-import capturePlugin from './capture-plugin'
+import capturePlugin from './capture-plugin';
+import { testRenderResponseBody } from './render';
 
 
 
@@ -212,6 +213,7 @@ function outputResult(
         );
         return;
     }
+    testRenderResponseBody(result.tests);
     console.log(JSON.stringify(result, null, 2));
 }
 

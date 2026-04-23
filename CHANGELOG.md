@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.3.0...v1.3.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* render response body when possible ([#4](https://github.com/forkbombeu/stepci-captured-runner/issues/4)) ([4240e58](https://github.com/forkbombeu/stepci-captured-runner/commit/4240e58b7ef843ba0362646e5a6ba11edd90bf1d))
+
 # [1.3.0](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.2.0...v1.3.0) (2025-10-31)
 
 

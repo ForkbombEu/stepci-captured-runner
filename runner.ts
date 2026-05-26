@@ -3,6 +3,7 @@ import { runFromFile, runFromYAML, type TestResult, StepResult, WorkflowResult, 
 import fs from 'fs';
 import capturePlugin from './capture-plugin';
 import { testRenderResponseBody } from './render';
+import packageJson from './package.json';
 
 
 
@@ -38,6 +39,8 @@ if (require.cache) {
 }
 
 program
+  .name('stepci-captured-runner')
+  .version(packageJson.version, '-v, --version', 'Print the CLI version')
   .option('-p, --path <file>', 'Path to the test file')
   .option('-s, --secret <json>', 'Secrets as a JSON string or path to JSON file')
   .option('-e, --env <json>', 'Environment variables as a JSON string or path to JSON file')

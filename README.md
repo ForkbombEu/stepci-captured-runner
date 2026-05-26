@@ -88,6 +88,7 @@ bun start --path yourfile.yaml
 - `--secret <key=value...>`: Provide secrets as key-value pairs.
 - `--env <key=value...>`: Provide environment variables as key-value pairs.
 - `-h, --human-readable`: Display the output in a human-readable format.
+- `-v, --version`: Print the CLI version.
 
 For more information on using the available options, run:
 

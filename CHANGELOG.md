@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.3.1...v1.4.0) (2026-05-26)
+
+
+### Features
+
+* add cli version flag ([189bde1](https://github.com/forkbombeu/stepci-captured-runner/commit/189bde175e50b30cc50cdd55755b8af0eb62ec3d))
+
 ## [1.3.1](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.3.0...v1.3.1) (2026-04-23)
 
 

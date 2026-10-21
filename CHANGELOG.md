@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.4.0...v1.4.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* upgrade bun so darwin-arm64 binaries are validly signed ([7f3a0fe](https://github.com/forkbombeu/stepci-captured-runner/commit/7f3a0feeb63ff0aa38bbaa82af4fb84980e83db5))
+
 # [1.4.0](https://github.com/forkbombeu/stepci-captured-runner/compare/v1.3.1...v1.4.0) (2026-05-26)
 
 

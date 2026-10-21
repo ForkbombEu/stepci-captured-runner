@@ -28,15 +28,17 @@ interface cliError {
 
 const program = new Command();
 const internalPluginName = 'capture-plugin';
-if (require.cache) {
-    require.cache[internalPluginName] = {
-        id: internalPluginName,
-        exports: {
-            default: capturePlugin
-        },
-        loaded: true,
-    } as any;
-}
+// @stepci/runner loads plugins with require(id); expose the bundled plugin as
+// a virtual module so the compiled binary resolves it without a file on disk.
+Bun.plugin({
+    name: internalPluginName,
+    setup(build) {
+        build.module(internalPluginName, () => ({
+            exports: { default: capturePlugin },
+            loader: 'object',
+        }));
+    },
+});
 
 program
   .name('stepci-captured-runner')
